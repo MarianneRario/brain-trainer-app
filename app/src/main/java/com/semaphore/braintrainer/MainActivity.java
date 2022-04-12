@@ -1,12 +1,14 @@
 package com.semaphore.braintrainer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -25,19 +27,35 @@ public class MainActivity extends AppCompatActivity {
     TextView remark; // property that will change if the answer chosen is correct or not
     int scoreCtr = 0; // property that will count the score
     int numberOfQuestions = 0; // property that will hold the total number of questions
-    TextView scoreTextView;
+    TextView scoreTextView; // property that will hold the score textview
+    Button playAgainBtn; // property that will hold the playAgain button
+    ConstraintLayout gameTransitionLayout; // property that will hold the constraint that will give the illusion that no one is beneath the constraint; pantakip sa loob
 
+    /* ONCLICK LISTENER THAT WILL ALLOW USERS TO PLAY THE GAME AGAIN*/
+    public void playAgain(View view){
+        playAgainBtn.setVisibility(View.INVISIBLE);
+
+        // reset the game
+        scoreCtr = 0;
+        numberOfQuestions = 0;
+        remark.setText("");
+        scoreTextView.setText("0/0");
+        generateQuestion(); // call the generate question when the screen starts
+        timer(); // start the timer immediately
+
+    }
 
     /* ONCLICK LISTENER THAT WILL SET THE START BUTTON TO INVISIBLE */
     public void start(View view){
         startBtn.setVisibility(View.INVISIBLE);
+        gameTransitionLayout.setVisibility(View.VISIBLE);
+        // call the playAgain function to avoid redundancy
+        playAgain(findViewById(R.id.scoreTextViewId)); // we can pass any view; it doesn't matter because we will not use it
+
     }
 
     /* ONCLICK LISTENER THAT WILL LISTEN TO EVERY CLICK OF THE ANSWER BUTTON */
     public void answer(View view) {
-
-        remark = (TextView) findViewById(R.id.remarkTextViewId); // reference for the remark textview
-        remark.setVisibility(View.VISIBLE);
 
         // compare the location of correct answer to the tag of the clicked button
        if(Integer.toString(locationOfCorrectAnswer).equals(view.getTag())){
@@ -51,29 +69,27 @@ public class MainActivity extends AppCompatActivity {
         numberOfQuestions++; // increase the number of questions regardless whether the ans is right or wrong
         scoreTextView.setText(Integer.toString(scoreCtr) + "/" + Integer.toString(numberOfQuestions)); // update the score in the textview
         generateQuestion(); // generate new question
+
     }
 
     /* FUNCTION FOR TIMER */
     public void timer(){
-        timer = new CountDownTimer(10000, 1000) {
+        timer = new CountDownTimer(30100, 1000) {
             @Override
             public void onTick(long l) {
-                updateTime((int) l/1000);
+
+                TextView timerTextView = (TextView) findViewById(R.id.timerTextViewId); // textview reference
+                timerTextView.setText(l/1000 + "s"); // update the time in the timer textview
             }
 
             @Override
             public void onFinish() {
-                Log.i("Timer", "Timer is up!");
+                remark.setText("Done!");
+                playAgainBtn.setVisibility(View.VISIBLE); // make the play btn visible when the game is finish
             }
         }.start();
-
     }
 
-    /* FUNCTION TO UPDATE TIMER TEXTVIEW */
-    public void updateTime(int secs){
-        TextView timerTextView = (TextView) findViewById(R.id.timerTextViewId); // textview reference
-        timerTextView.setText(secs + "s");
-    }
 
     /* FUNCTION THAT GENERATES NEW QUESTION */
     public void generateQuestion(){
@@ -124,16 +140,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         startBtn = (Button) findViewById(R.id.startBtnId); // reference of the start button
+        remark = (TextView) findViewById(R.id.remarkTextViewId); // reference for the remark textview
         scoreTextView = (TextView) findViewById(R.id.scoreTextViewId); // reference of the score textview
-        scoreTextView.setText(Integer.toString(scoreCtr) + "/" + Integer.toString(numberOfQuestions)); // update the score in the textview
-        generateQuestion(); // call the generate question when the screen starts
+        playAgainBtn = (Button) findViewById(R.id.playAgainBtnId); // reference of the play again button
+        gameTransitionLayout = (ConstraintLayout) findViewById(R.id.gameTransitionLayoutId); // reference of the constraint that will be use as pantakip
+
+        startBtn.setVisibility(View.VISIBLE); // make the start button visible at the starting process of the app
+        gameTransitionLayout.setVisibility(View.INVISIBLE); // make the constraint that contains all the buttons, text views, and stuff invisible at the start of the app
 
 
     }
