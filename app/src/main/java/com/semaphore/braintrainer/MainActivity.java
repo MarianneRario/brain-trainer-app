@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ public class MainActivity extends AppCompatActivity {
 
     /* PROPERTY DECLARATIONS */
     Button startBtn; // initialize the button property outside the onCreate method
-    boolean isActive = false; // flag for active or not
     CountDownTimer timer; // countdown timer property
     ArrayList<Integer> answers = new ArrayList<Integer>(); // arraylist that will hold the answer
     Random rand = new Random(); // generates random number
@@ -30,12 +30,15 @@ public class MainActivity extends AppCompatActivity {
     TextView scoreTextView; // property that will hold the score textview
     Button playAgainBtn; // property that will hold the playAgain button
     ConstraintLayout gameTransitionLayout; // property that will hold the constraint that will give the illusion that no one is beneath the constraint; pantakip sa loob
+    androidx.gridlayout.widget.GridLayout gridLayout; // property that will hold the grid layout
+    ArrayList<View> layoutButtons;
 
     /* ONCLICK LISTENER THAT WILL ALLOW USERS TO PLAY THE GAME AGAIN*/
     public void playAgain(View view){
         playAgainBtn.setVisibility(View.INVISIBLE);
 
         // reset the game
+        enableButtons(); // enable the buttons again
         scoreCtr = 0;
         numberOfQuestions = 0;
         remark.setText("");
@@ -72,9 +75,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /* DISABLE THE BUTTONS INSIDE THE GRIDLAYOUT */
+    public void disableButtons() {
+        // loop through them, if they are an instance of Button, disable it.
+        for(View v : layoutButtons){
+            if( v instanceof Button ) {
+                ((Button)v).setEnabled(false);
+            }
+        }
+    }
+    /* ENABLE THE BUTTONS INSIDE THE GRIDLAYOUT */
+    public void enableButtons() {
+        // loop through them, if they are an instance of Button, disable it.
+        for(View v : layoutButtons){
+            if( v instanceof Button ) {
+                ((Button)v).setEnabled(true);
+            }
+        }
+    }
+
     /* FUNCTION FOR TIMER */
     public void timer(){
-        timer = new CountDownTimer(30100, 1000) {
+        timer = new CountDownTimer(10100, 1000) {
             @Override
             public void onTick(long l) {
 
@@ -84,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
+                disableButtons(); // disable buttons
                 remark.setText("Done!");
                 playAgainBtn.setVisibility(View.VISIBLE); // make the play btn visible when the game is finish
             }
@@ -150,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
         scoreTextView = (TextView) findViewById(R.id.scoreTextViewId); // reference of the score textview
         playAgainBtn = (Button) findViewById(R.id.playAgainBtnId); // reference of the play again button
         gameTransitionLayout = (ConstraintLayout) findViewById(R.id.gameTransitionLayoutId); // reference of the constraint that will be use as pantakip
+        gridLayout = findViewById(R.id.gridLayoutId); // reference to the grid layout that holds the buttons
+        layoutButtons = gridLayout.getTouchables(); // reference to the arrayList of button views
 
         startBtn.setVisibility(View.VISIBLE); // make the start button visible at the starting process of the app
         gameTransitionLayout.setVisibility(View.INVISIBLE); // make the constraint that contains all the buttons, text views, and stuff invisible at the start of the app
